@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Graph AI Assistant</title>
+
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        font-family: Arial;
+        background: #f6f6f6;
+        color: rgb(0, 0, 0);
+      }
+
+      /* LEFT PANEL (GRAPH - FULL AREA) */
+      #left {
+        width: 70%;
+        height: 100vh;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      #right {
+        width: 30%;
+        padding: 20px;
+        border-left: 2px solid #ffffff;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #messages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 10px;
+      }
+
+      .msg {
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        max-width: 80%;
+      }
+
+      .user {
+        background: #ffffff;
+        align-self: flex-end;
+      }
+
+      .bot {
+        background: #bebebe;
+        align-self: flex-start;
+      }
+
+      .heading {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        color: rgb(67, 67, 67);
+      }
+
+      .sub-heading {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        color: #b6b6b6;
+        margin-top: -10px;
+      }
+
+      #input-area {
+        display: flex;
+      }
+
+      input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        outline: none;
+        border-radius: 10%;
+      }
+
+      button {
+        padding: 10px 15px;
+        background: #3498db;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 10%;
+      }
+      
+      button {
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #2980b9;
+        transform: scale(1.05);
+      }
+      button:hover {
+        background: #84ceff;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- LEFT: GRAPH -->
+    <div id="left">
+      <iframe id="graphFrame" src="/static/sap_graph.html"></iframe>
+    </div>
+
+    <!-- RIGHT: CHAT -->
+    <div id="right">
+      <h2 class="heading">Graph AI Assistant</h2>
+      <p class="sub-heading">Order to Cash</p>
+
+      <div id="messages"></div>
+
+      <div id="input-area">
+        <input id="input" placeholder="Ask something..." />
+        <button onclick="send()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      function send() {
+        let inputBox = document.getElementById("input");
+        let query = inputBox.value;
+
+        if (!query) return;
+
+        let messages = document.getElementById("messages");
+
+        // User message
+        messages.innerHTML += `<div class="msg user">${query}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+
+        fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: query }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            messages.innerHTML += `<div class="msg bot">${data.response}</div>`;
+            messages.scrollTop = messages.scrollHeight;
+
+            // 🔥 Reload graph
+            if (data.reload_graph) {
+              document.getElementById("graphFrame").src =
+                "/static/sap_graph.html?" + new Date().getTime();
+            }
+          });
+
+        inputBox.value = "";
+      }
+    </script>
+  </body>
+</html>
