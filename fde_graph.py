@@ -1,6 +1,3 @@
-# =========================
-# fde_graph.py
-# =========================
 
 import os
 import json
@@ -8,9 +5,7 @@ import zipfile
 import networkx as nx
 from pyvis.network import Network
 
-# =========================
-# 1. Extract & Locate Dataset
-# =========================
+
 
 def load_data():
     zip_path = "sap-order-to-cash-dataset.zip"
@@ -32,16 +27,14 @@ def load_data():
     return os.path.join(extract_path, folders[0])
 
 
-# =========================
-# 2. Load JSON / JSONL Files
-# =========================
+
 
 def load_sap_data(data_path, folder_name):
     folder_path = os.path.join(data_path, folder_name)
     data = []
 
     if not os.path.exists(folder_path):
-        print(f"❌ Missing folder: {folder_name}")
+        print(f" Missing folder: {folder_name}")
         return data
 
     for file in os.listdir(folder_path):
@@ -65,14 +58,12 @@ def load_sap_data(data_path, folder_name):
                         data.append(content)
 
         except Exception as e:
-            print(f"⚠️ Skipping {file}: {e}")
+            print(f" Skipping {file}: {e}")
 
     return data
 
 
-# =========================
-# 3. Build Graph
-# =========================
+
 
 def build_graph():
 
@@ -84,9 +75,6 @@ def build_graph():
 
     G = nx.MultiDiGraph()
 
-    # -------------------------
-    # Customer → Order
-    # -------------------------
     for order in sales_orders:
         oid = order.get('salesOrder')
         cust = order.get('soldToParty')
@@ -113,9 +101,7 @@ def build_graph():
                 label='PLACED_ORDER'
             )
 
-    # -------------------------
-    # Delivery Nodes
-    # -------------------------
+    
     for dlv in deliveries:
         did = dlv.get('deliveryDocument')
 
@@ -127,9 +113,7 @@ def build_graph():
                 color="#35e37d"
             )
 
-    # -------------------------
-    # Billing Nodes
-    # -------------------------
+    
     for bill in billing:
         bid = bill.get('billingDocument')
 
@@ -141,19 +125,17 @@ def build_graph():
                 color="#fc7848"
             )
 
-    print(f"✅ Graph Built! Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}")
+    print(f" Graph Built! Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}")
 
     return G
 
 
-# =========================
-# 4. Save Graph with Highlighting
-# =========================
+
 
 def save_graph_html(G, highlight_nodes=None):
 
     net = Network(
-    height='100vh',   # 🔥 change this
+    height='100vh',  
     width='100%',
     directed=True,
     bgcolor="#EDEDED",
@@ -162,9 +144,7 @@ def save_graph_html(G, highlight_nodes=None):
 
     highlight_nodes = highlight_nodes or []
 
-    # -------------------------
-    # Add Nodes
-    # -------------------------
+   
     for node, data in G.nodes(data=True):
 
         default_color = data.get("color", "#97c2fc")
@@ -184,9 +164,7 @@ def save_graph_html(G, highlight_nodes=None):
                 size=20
             )
 
-    # -------------------------
-    # Add Edges
-    # -------------------------
+    
     for u, v, data in G.edges(data=True):
         net.add_edge(
             u,
@@ -194,9 +172,7 @@ def save_graph_html(G, highlight_nodes=None):
             label=data.get("title", "")
         )
 
-    # -------------------------
-    # Save HTML
-    # -------------------------
+   
     if not os.path.exists("static"):
         os.makedirs("static")
 

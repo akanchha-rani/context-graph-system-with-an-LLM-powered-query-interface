@@ -12,7 +12,6 @@
         color: rgb(0, 0, 0);
       }
 
-      /* LEFT PANEL (GRAPH - FULL AREA) */
       #left {
         width: 70%;
         height: 100vh;
@@ -106,12 +105,12 @@
   </head>
 
   <body>
-    <!-- LEFT: GRAPH -->
+    
     <div id="left">
       <iframe id="graphFrame" src="/static/sap_graph.html"></iframe>
     </div>
 
-    <!-- RIGHT: CHAT -->
+   
     <div id="right">
       <h2 class="heading">Graph AI Assistant</h2>
       <p class="sub-heading">Order to Cash</p>
@@ -133,7 +132,7 @@
 
         let messages = document.getElementById("messages");
 
-        // User message
+        
         messages.innerHTML += `<div class="msg user">${query}</div>`;
         messages.scrollTop = messages.scrollHeight;
 
@@ -147,7 +146,7 @@
             messages.innerHTML += `<div class="msg bot">${data.response}</div>`;
             messages.scrollTop = messages.scrollHeight;
 
-            // 🔥 Reload graph
+            
             if (data.reload_graph) {
               document.getElementById("graphFrame").src =
                 "/static/sap_graph.html?" + new Date().getTime();

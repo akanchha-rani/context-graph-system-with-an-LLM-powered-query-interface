@@ -1,7 +1,3 @@
-# =========================
-# app.py
-# =========================
-
 from flask import Flask, render_template, request, jsonify
 import os
 import json
@@ -9,25 +5,13 @@ from dotenv import load_dotenv
 from groq import Groq
 from fde_graph import build_graph, save_graph_html
 
-# =========================
-# Setup
-# =========================
-
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 app = Flask(__name__)
 
-# =========================
-# Build Graph (once at start)
-# =========================
-
 G = build_graph()
 save_graph_html(G)
-
-# =========================
-# Query Functions
-# =========================
 
 def get_orders_by_customer(customer_id):
     return [
@@ -37,10 +21,6 @@ def get_orders_by_customer(customer_id):
 
 def get_customer_orders_count(customer_id):
     return len(get_orders_by_customer(customer_id))
-
-# =========================
-# LLM Interpreter (Groq)
-# =========================
 
 def interpret_query(query):
     prompt = f"""
@@ -67,10 +47,6 @@ def interpret_query(query):
 
     return response.choices[0].message.content
 
-# =========================
-# Safe JSON Parser 🔥
-# =========================
-
 def parse_llm_response(response_text):
     try:
         start = response_text.find("{")
@@ -81,9 +57,6 @@ def parse_llm_response(response_text):
         print("Parsing Error:", e)
         return None
 
-# =========================
-# Routes
-# =========================
 
 @app.route("/")
 def home():
@@ -95,7 +68,7 @@ def ask():
     user_query = request.json.get("query")
 
     try:
-        # 🔥 Interpret query using LLM
+        
         response_text = interpret_query(user_query)
         intent = parse_llm_response(response_text)
 
@@ -110,9 +83,6 @@ def ask():
 
         highlight_nodes = []
 
-        # =========================
-        # Execute Graph Query
-        # =========================
 
         if func == "get_orders_by_customer" and cid:
             result = get_orders_by_customer(cid)
@@ -123,11 +93,7 @@ def ask():
             highlight_nodes = [cid]
 
         else:
-            result = "⚠️ Unknown query"
-
-        # =========================
-        # Update Graph with Highlight
-        # =========================
+            result = " Unknown query"
 
         save_graph_html(G, highlight_nodes)
 
@@ -142,9 +108,6 @@ def ask():
             "reload_graph": False
         })
 
-# =========================
-# Run App
-# =========================
 
 if __name__ == "__main__":
     app.run(debug=True, port=5050)
